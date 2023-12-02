@@ -1,6 +1,6 @@
 import UIKit
 
-class ViewController: UIViewController, CAAnimationDelegate {
+class ViewController: UIViewController {
     
     @IBOutlet weak var backView: UIView!
     @IBOutlet weak var imageView: UIImageView!
@@ -8,48 +8,35 @@ class ViewController: UIViewController, CAAnimationDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        verticalRotation()
-        //xAxis()
+        // Add tap gesture recognizer to trigger the flip animation
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        view.addGestureRecognizer(tapGesture)
     }
     
-    func leftRotation() {
-        let animation = createRotationAnimation(withRotation: 90)
-        imageView.layer.add(animation, forKey: "leftRotation")
+    @objc func handleTap() {
+        // Call the function to perform the flip animation
+        flipAnimation()
     }
     
-    func xAxis() {
-        let animation = createRotationAnimation(withRotation: 90)
-        imageView.layer.add(animation, forKey: "xAxis")
-    }
-    
-    
-    func rightRotation() {
-        let animation = createRotationAnimation(withRotation: -90)
-        animation.delegate = self // Set the delegate
-        imageView.layer.add(animation, forKey: "rightRotation")
-    }
-    
-    func createRotationAnimation(withRotation rotation: CGFloat) -> CABasicAnimation {
-        let animation = CABasicAnimation(keyPath: "transform")
+    func flipAnimation() {
+        // Create a CATransform3D for the flip animation
         var transform = CATransform3DIdentity
-        transform.m34 = -0.002
-        animation.toValue = CATransform3DRotate(transform, rotation * .pi / 700, 0, 1, 0)
-        animation.duration = 2.0
-        return animation
+        transform.m34 = -1.0 / 500.0 // Perspective effect
+        
+        // Set up the flip animation with a 60-degree rotation
+        let animation = CABasicAnimation(keyPath: "transform.rotation.y")
+        animation.fromValue = 0
+        animation.toValue = 85 * CGFloat.pi / 180
+        animation.duration = 1.0 // Animation duration
+        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut) // Animation timing function
+      //  animation.delegate = self
+        
+        // Apply the animation to the layer
+        imageView.layer.add(animation, forKey: "flipAnimation")
     }
     
-    func createVerticalAnimation(withRotation rotation: CGFloat) -> CABasicAnimation {
-        let animation = CABasicAnimation(keyPath: "transform")
-        var transform = CATransform3DIdentity
-        transform.m34 = -0.002
-        animation.toValue = CATransform3DRotate(transform, rotation * .pi / 700, 1, 0, 0) // Rotate around x-axis
-        animation.duration = 2.0
-        return animation
-    }
-
+    // MARK: - CAAnimationDelegate
     
-    func verticalRotation() {
-        let animation = createVerticalAnimation(withRotation: 90)
-        imageView.layer.add(animation, forKey: "verticalRotation")
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
     }
 }
